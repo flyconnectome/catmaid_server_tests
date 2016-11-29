@@ -1,0 +1,47 @@
+---
+title: "server_latency"
+author: "Gregory Jefferis"
+date: "29 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+calls=readLines("sample_fafb_curl_calls.sh")
+
+```
+
+```{r}
+time_call <- function(u) {
+  newcall=sub("curl", 'curl -s -w "%{time_total}\n" -o /dev/null', u)
+  as.numeric(system(newcall, intern=T))
+}
+
+```
+
+```{r}
+time_call(calls[1])
+```
+
+Now let's pick 100 calls at random. But not all are jpegs, so let's use those:
+
+```{r}
+table(grepl("jpg",calls))
+jpgs=grep("jpg",calls, value = T)
+```
+
+OK, so 100 calls at random
+
+```{r}
+set.seed(42)
+call_times=sapply(sample(jpgs, 100), time_call)
+```
+
+
+```{r}
+hist(call_times)
+```
+
